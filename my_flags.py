@@ -28,7 +28,9 @@ tf.app.flags.DEFINE_string("use_gpu", "/gpu:3", "Specify which gpu to use.")
 
 ### Global setting
 
-tf.app.flags.DEFINE_string("exp_mode", "train", "Training 'train' or Test 'test' Mode.")
+#tf.app.flags.DEFINE_string("exp_mode", "train", "Training 'train' or Test 'test' Mode.")
+
+tf.app.flags.DEFINE_string("exp_mode", "train", "train")
 
 tf.app.flags.DEFINE_integer("model_to_load", 100, "Model to load for testing.")
 
@@ -99,7 +101,7 @@ tf.app.flags.DEFINE_integer("num_sample_rollout", 10, "Number of Multiple Oracle
 
 ### Training features
 
-tf.app.flags.DEFINE_string("train_dir", "/address/to/training/directory", "Training directory.")
+tf.app.flags.DEFINE_string("train_dir", "C:\\Users\\Jungwoo Lim\\Documents\\GitHub\\Refresh\\address\\to\\training\\directory", "Training directory.")
 
 tf.app.flags.DEFINE_float("learning_rate", 0.001, "Learning rate.")
 
@@ -113,21 +115,19 @@ tf.app.flags.DEFINE_integer("training_checkpoint", 1, "How many training steps t
 
 # Pretrained wordembeddings data
 
-tf.app.flags.DEFINE_string("pretrained_wordembedding",  
-                           "/address/data/1-billion-word-language-modeling-benchmark-r13output.word2vec.vec", 
-                           "Pretrained wordembedding file trained on the one million benchmark data.")
+tf.app.flags.DEFINE_string("pretrained_wordembedding","C:\\Users\\Jungwoo Lim\\Documents\\GitHub\\Refresh\\address\\data\\1-billion-word-language-modeling-benchmark-r13output.word2vec.vec","Pretrained wordembedding file trained on the one million benchmark data.")
 
 # Data directory address
 
-tf.app.flags.DEFINE_string("preprocessed_data_directory", "/address/data/preprocessed-input-directory", 
+tf.app.flags.DEFINE_string("preprocessed_data_directory", "C:\\Users\\Jungwoo Lim\\Documents\\GitHub\\Refresh\\address\\data\\preprocessed-input-directory", 
                            "Pretrained news articles for various types of word embeddings.")
 
 tf.app.flags.DEFINE_string("gold_summary_directory", 
-                           "/address/data/Baseline-Gold-Models", 
+                           "C:\\Users\\Jungwoo Lim\\Documents\\GitHub\\Refresh\\address\\data\\Baseline-Gold-Models", 
                            "Gold summary directory.")
 
 tf.app.flags.DEFINE_string("doc_sentence_directory", 
-                           "/address/data/CNN-DM-Filtered-TokenizedSegmented", 
+                           "C:\\Users\\Jungwoo Lim\\Documents\\GitHub\\Refresh\\address\\data\\CNN-DM-Filtered-TokenizedSegmented", 
                            "Directory where document sentences are kept.")
 
 ############ Create FLAGS

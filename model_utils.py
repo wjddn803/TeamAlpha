@@ -16,7 +16,9 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops import variable_scope
-from tensorflow.python.ops import seq2seq
+import tensorflow.contrib.seq2seq as seq2seq
+#from tensorflow.contrib import rnn 
+# from tensorflow.python.ops import seq2seq
 
 # from tf.nn import variable_scope
 from my_flags import FLAGS
@@ -72,14 +74,14 @@ def reshape_tensor2list(tensor, n_steps, n_input):
   # Reshaping to (n_steps*batch_size, n_input)
   tensor = tf.reshape(tensor, [-1, n_input], name='reshape')
   # Split to get a list of 'n_steps' tensors of shape (batch_size, n_input)
-  tensor = tf.split(0, n_steps, tensor, name='split')
+  tensor = tf.split(tensor, n_steps, 0, name='split')
   return tensor
 
 def reshape_list2tensor(listoftensors, n_steps, n_input):
   """Reshape lists of n_steps items with [?, n_input] to tensor [?, n_steps, n_input] 
   """
   # Reverse of _reshape_tensor2list
-  tensor = tf.concat(0, listoftensors, name="concat") # [n_steps * ?, n_input]
+  tensor = tf.concat(axis = 0, values = listoftensors, name="concat") # [n_steps * ?, n_input]
   tensor = tf.reshape(tensor, [n_steps, -1, n_input], name='reshape') # [n_steps, ?, n_input]
   tensor = tf.transpose(tensor, perm=[1, 0, 2], name='transpose') # [?, n_steps, n_input] 
   return tensor
@@ -127,7 +129,7 @@ def conv1d_layer_sentence_representation(sent_wordembeddings):
       print("Error: Make sure (output_channel *  FLAGS.max_filter_length) is equal to FLAGS.sentembed_size.")
       exit(0)
   
-  for filterwidth in xrange(1,FLAGS.max_filter_length+1):
+  for filterwidth in range(1,FLAGS.max_filter_length+1):
     # print(filterwidth)
     
     with tf.variable_scope("Conv1D_%d"%filterwidth) as scope:
@@ -166,7 +168,7 @@ def conv1d_layer_sentence_representation(sent_wordembeddings):
     if FLAGS.handle_filter_output == "sum":
       final_representation = tf.add_n(representation_from_filters)
     else: 
-      final_representation = tf.concat(1, representation_from_filters)
+      final_representation = tf.concat(axis = 1, values = representation_from_filters)
 
   return final_representation
 
@@ -182,7 +184,7 @@ def simple_rnn(rnn_input, initial_state=None):
   
   # Setup RNNs
   dtype = tf.float16 if FLAGS.use_fp16 else tf.float32
-  rnn_outputs, rnn_state = tf.nn.rnn(cell_enc, rnn_input, dtype=dtype, initial_state=initial_state)
+  rnn_outputs, rnn_state = tf.contrib.rnn.static_rnn(cell_enc, rnn_input, dtype=dtype, initial_state=initial_state)
   # print(rnn_outputs)
   # print(rnn_state)
   
@@ -247,9 +249,9 @@ def jporg_attentional_seqrnn_decoder(sents_ext, encoder_outputs, encoder_state, 
       with variable_scope.variable_scope("mlp"):
         combined_output = [] # batch_size, 2*size
         if FLAGS.doc_encoder_reverse:
-          combined_output = tf.concat(1, [output, encoder_outputs[(FLAGS.max_doc_length - 1) - i]])
+          combined_output = tf.concat(axis = 1, values = [output, encoder_outputs[(FLAGS.max_doc_length - 1) - i]])
         else:
-          combined_output = tf.concat(1, [output, encoder_outputs[i]])
+          combined_output = tf.concat(axis = 1, values = [output, encoder_outputs[i]])
 
         logit = multilayer_perceptron(combined_output, weights, biases)
           

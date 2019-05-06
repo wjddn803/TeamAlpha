@@ -197,7 +197,7 @@ class Data:
         return batch_docnames, batch_docs, batch_label, batch_weight, batch_oracle_multiple, batch_reward_multiple
 
     def shuffle_fileindices(self):
-        random.shuffle(self.fileindices)
+        random.shuffle(list(self.fileindices))
 
     def write_to_files(self, data_type):
         full_data_file_prefix = FLAGS.train_dir + "/" + FLAGS.data_mode + "." + data_type  
@@ -325,7 +325,7 @@ class DataProcessor:
 
         embed_line = ""
         linecount = 0
-        with open(wordembed_filename, "r") as fembedd:
+        with open(wordembed_filename, "r",encoding='UTF-8') as fembedd:
             for line in fembedd:
                 if linecount == 0:
                     vocabsize = int(line.split()[0])
@@ -343,10 +343,10 @@ class DataProcessor:
         print("Read pretrained embeddings: %s"%str(word_embedding_array.shape))
         
         print("Size of vocab: %d (_PAD:0, _UNK:1)"%len(vocab_dict))
-        vocabfilename = FLAGS.train_dir+"/vocab.txt"
+        vocabfilename = FLAGS.train_dir+"\\vocab.txt"
         print("Writing vocab file: %s"%vocabfilename)
 
-        foutput = open(vocabfilename,"w")
+        foutput = open(vocabfilename,"w",encoding='UTF-8')
         vocab_list = [(vocab_dict[key], key) for key in vocab_dict.keys()]
         vocab_list.sort()
         vocab_list = [item[1] for item in vocab_list]

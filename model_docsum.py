@@ -16,7 +16,8 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops import variable_scope
-from tensorflow.python.ops import seq2seq
+import tensorflow.contrib.seq2seq as seq2seq
+#from tensorflow.python.ops import seq2seq
 from tensorflow.python.ops import math_ops
 
 # from tf.nn import variable_scope
@@ -138,7 +139,7 @@ def policy_network(vocab_embed_variable, document_placeholder, label_placeholder
         # UNK embedding trainable
         unk_embed_variable = variable_on_cpu("unk_embed", [1, FLAGS.wordembed_size], tf.constant_initializer(0), trainable=True)     
         # Get fullvocab_embed_variable
-        fullvocab_embed_variable = tf.concat(0, [pad_embed_variable, unk_embed_variable, vocab_embed_variable])
+        fullvocab_embed_variable = tf.concat(axis = 0, values = [pad_embed_variable, unk_embed_variable, vocab_embed_variable])
         # print(fullvocab_embed_variable)
         
         ### Lookup layer
@@ -497,10 +498,10 @@ def reward_weighted_cross_entropy_loss_multisample(logits, labels, actual_reward
         logits_expanded = tf.reshape(logits_expanded, [-1, FLAGS.target_label_size]) # [FLAGS.batch_size*1*FLAGS.max_doc_length, FLAGS.target_label_size]
         labels = tf.reshape(labels, [-1, FLAGS.target_label_size]) # [FLAGS.batch_size*1*FLAGS.max_doc_length, FLAGS.target_label_size]
 
-        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits_expanded, labels) # [FLAGS.batch_size*1*FLAGS.max_doc_length]
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits = logits_expanded, labels = labels) # [FLAGS.batch_size*1*FLAGS.max_doc_length]
         cross_entropy = tf.reshape(cross_entropy, [-1, 1, FLAGS.max_doc_length])  # [FLAGS.batch_size, 1, FLAGS.max_doc_length]
         if FLAGS.weighted_loss:
-            cross_entropy = tf.mul(cross_entropy, weights_expanded) # [FLAGS.batch_size, 1, FLAGS.max_doc_length]
+            cross_entropy = tf.multiply(cross_entropy, weights_expanded) # [FLAGS.batch_size, 1, FLAGS.max_doc_length]
             
         # Reshape actual rewards
         actual_rewards = tf.reshape(actual_rewards, [-1]) # [FLAGS.batch_size*1] 
@@ -515,7 +516,7 @@ def reward_weighted_cross_entropy_loss_multisample(logits, labels, actual_reward
         # [[[a,a], [b,b]], [[c,c], [d,d]], [[e,e], [f,f]]] [3 x 2 x 2]
 
         # Multiply with reward
-        reward_weighted_cross_entropy = tf.mul(cross_entropy, actual_rewards) # [FLAGS.batch_size, 1, FLAGS.max_doc_length]
+        reward_weighted_cross_entropy = tf.multiply(cross_entropy, actual_rewards) # [FLAGS.batch_size, 1, FLAGS.max_doc_length]
         
         # Cross entroy / sample / document 
         reward_weighted_cross_entropy = tf.reduce_sum(reward_weighted_cross_entropy, reduction_indices=2) # [FLAGS.batch_size, 1]
@@ -896,7 +897,7 @@ def accuracy(logits, labels, weights):
     # Get Accuracy
     accuracy = tf.reduce_mean(correct_pred, name='accuracy')
     if FLAGS.weighted_loss:
-      correct_pred = tf.mul(correct_pred, weights)      
+      correct_pred = tf.multiply(correct_pred, weights)      
       correct_pred = tf.reduce_sum(correct_pred, reduction_indices=1) # [FLAGS.batch_size]
       doc_lengths = tf.reduce_sum(weights, reduction_indices=1) # [FLAGS.batch_size]
       correct_pred_avg = tf.div(correct_pred, doc_lengths)
